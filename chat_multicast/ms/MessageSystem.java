@@ -34,7 +34,6 @@ public class MessageSystem {
 			System.out.println("Sending " + message.toString() + " from " + pid + " to " + dst);
 		}
 		try {
-			
 			Socket socket = addresses.get(dst-1).connect();
 			
 			ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
@@ -51,35 +50,36 @@ public class MessageSystem {
 	
 	public void sendMulticast(Serializable message, int type) {
 		int dst = 1;
-		this.estampilla++;
 		for(PeerAddress i : addresses) {
-			//if (dst != pid){
-				try {				
-					Socket socket = i.connect();
+			try {				
+				Socket socket = i.connect();
 					
-					ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
-					Envelope sobre = new Envelope(source, dst, message, this.estampilla, type);
-					outputStream.writeObject(sobre);
-					outputStream.close();
-					if (showDebugMsgs) {
+				ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
+				Envelope sobre = new Envelope(source, dst, message, this.estampilla, type);
+				outputStream.writeObject(sobre);
+				outputStream.close();
+				if (showDebugMsgs) {
+					if(sobre.isMessage()){
 						System.out.println("Estampilla: " + estampilla + ". Sending " + message.toString() + " from " + pid + " to " + dst);
+					}else{
+						System.out.println("Sending " + message.toString() + " from " + pid + " to " + dst);
 					}
-				} catch (UnknownHostException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
+						
 				}
-				dst++;
-			//}
-			
-		}
-		
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			dst++;
+		}		
 	}
 	
 	public Envelope receive() {
 		Envelope mail = mailbox.getNextMessage();
-		if(showDebugMsgs)
+		if(showDebugMsgs){
 			System.out.println("Mensaje Recibido \"" + mail.getPayload() + "\" de " + mail.getSource());
+		}
         return mail;
 	}
 	
